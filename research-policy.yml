@@ -1,0 +1,82 @@
+version: 1
+
+research:
+  objective: "Find genuinely new or materially updated direct security and bug-bounty opportunities."
+  freshness_days_preferred: 30
+  require_duplicate_check: true
+  keep_negative_research: true
+  primary_sources_first: true
+
+include:
+  scopes:
+    - smart-contract
+    - l1
+    - l2
+    - node
+    - bridge
+    - consensus
+    - cryptography
+    - wallet-protocol
+    - protocol-infrastructure
+
+prefer:
+  operator:
+    - direct-project-run
+  payout_assets:
+    - USDC
+    - USDT
+    - ETH
+    - BTC
+    - native-token
+  qualities:
+    - public-clear-scope
+    - explicit-reward
+    - direct-submission
+    - recent-launch-or-material-update
+    - reproducible-protocol-code
+
+exclude:
+  third_party_platforms:
+    - Immunefi
+    - Cantina
+    - Sherlock
+    - Code4rena
+    - CodeHawks
+    - Hats Finance
+    - HackenProof
+    - Bugcrowd
+    - HackerOne
+  scopes:
+    - website-only
+    - generic-web-pentest
+    - marketing-site-only
+  conditions:
+    - requires-deposit-to-submit
+
+record_even_when_excluded:
+  - inactive
+  - paused
+  - rejected
+  - no-reward
+  - low-value
+  - third-party
+  - scam-risk
+  - ineligible
+  - unknown
+
+material_update_fields:
+  - status
+  - rewards
+  - payout
+  - scope
+  - submission
+  - kyc
+  - eligibility
+  - terms
+  - security_url
+  - repositories
+  - major_version
+
+notes:
+  - "Policy guides prioritization; registry identity always wins over conversational memory."
+  - "An excluded project can still be recorded to prevent rediscovery."

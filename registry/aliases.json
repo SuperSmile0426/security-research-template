@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "aliases": {},
+  "notes": "Optional global alias map. Prefer storing project-specific aliases directly on the program record. Keys should be normalized aliases and values should be BP-XXXX IDs."
+}
