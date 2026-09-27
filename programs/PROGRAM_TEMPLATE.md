@@ -1,5 +1,9 @@
 # [Program / project name]
 
+Optional human-readable dossier for one security / bug-bounty program.
+
+`registry/programs.jsonl` remains canonical. Do not store vulnerability findings or submission reports here.
+
 - Registry ID: `BP-XXXX`
 - Organization:
 - Status:
@@ -19,8 +23,9 @@
 ## Program terms
 
 - Operator: direct / third-party / unknown
-- Reward:
+- Reward range / pool:
 - Payout assets:
+- Payout method:
 - KYC / identity requirements:
 - Eligibility:
 - Submission method:
@@ -30,35 +35,29 @@
 
 - Included:
 - Excluded:
-- Relevant repositories / versions:
+- Relevant repositories / deployed versions:
 
-## Freshness
+## Freshness and changes
 
 - Source publication / announcement date:
 - Date evidence:
 - Materially changed since prior verification?:
 - Change summary:
 
-## Evidence
+## Sources
 
-| Claim | Source | Verified date | Notes |
+| Claim / term | Official source | Verified date | Notes |
 |---|---|---|---|
 | | | | |
 
-## Assessment
-
-### Verified facts
+## Open questions
 
 -
 
-### Open questions
+## Tracking rationale
 
--
+- Why keep / reject / recheck this program:
 
-### Why track / reject
+## Program history
 
--
-
-## History
-
-- YYYY-MM-DD — initial research.
+- YYYY-MM-DD — first researched / verified.
