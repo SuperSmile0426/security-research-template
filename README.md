@@ -1,70 +1,94 @@
-# Security Research Template
+# Security Program Research Template
 
-A reusable workspace for discovering and tracking security / bug-bounty programs without repeatedly rediscovering the same projects.
+A reusable workspace for discovering, deduplicating, and tracking security / bug-bounty **programs** over time.
 
-The core design principle is simple:
+> **This repository manages programs, not vulnerability reports.**
 
-> **The local registry is authoritative for identity and prior research. Agent memory is not.**
+The local program registry is authoritative for identity and prior research. Agent memory is not.
 
-This repository is intended for AI-assisted research with Codex, ChatGPT-connected coding agents, GitHub Copilot agents, or a human researcher.
+## Purpose
 
-## What this template solves
+Repeated security-program research tends to fail when:
 
-Repeated security-program research tends to fail in three ways:
+1. the same program is surfaced again under another name, URL, or repository;
+2. previously rejected, inactive, no-reward, or low-value programs are forgotten and researched again;
+3. a known program changes materially, but simplistic duplicate filtering hides the update.
 
-1. the same program is surfaced again under a different name, URL, or GitHub repository;
-2. previously rejected / inactive / no-reward projects are forgotten and researched again;
-3. genuinely useful changes to a known program are hidden by simplistic "duplicate" filtering.
+This template solves those problems by separating **program identity** from **program changes**.
 
-This template separates **identity** from **change detection**.
+It is not intended to store vulnerabilities, PoCs, exploit evidence, finding severity, submission reports, or per-vulnerability status.
 
-A known project is not new, but it may still be worth reporting as **UPDATED** when its reward, scope, submission channel, status, payout requirements, or other material terms change.
+## What is tracked
+
+For each program, track only program-level information such as:
+
+- identity, organization, aliases, domains, and repositories;
+- official security / bounty URLs;
+- active, upcoming, paused, closed, rejected, or other status;
+- technical scope and exclusions;
+- reward range, payout asset, and payout method;
+- KYC / eligibility requirements;
+- submission channel and disclosure rules;
+- first-seen, last-verified, and recheck dates;
+- primary sources;
+- material changes to previously known program terms.
 
 ## Repository map
 
 - `AGENTS.md` — canonical operating instructions for AI agents.
 - `.github/copilot-instructions.md` — GitHub Copilot compatibility layer.
-- `research-policy.yml` — research preferences, inclusion rules, exclusions, and freshness policy.
-- `registry/programs.jsonl` — authoritative machine-readable program registry.
-- `registry/aliases.json` — optional cross-project aliases and organization-name mappings.
+- `.github/prompts/research-bounties.prompt.md` — reusable program-discovery prompt.
+- `research-policy.yml` — inclusion, exclusion, payout, scope, and freshness preferences.
+- `registry/programs.jsonl` — **authoritative program database**.
+- `registry/aliases.json` — optional alias / organization mappings.
 - `registry/SCHEMA.md` — registry field contract.
-- `programs/PROGRAM_TEMPLATE.md` — human-readable dossier template for a researched program.
-- `research/candidates/CANDIDATE_TEMPLATE.md` — working record before a candidate is accepted into the registry.
-- `research/daily/DAILY_TEMPLATE.md` — daily research log template.
-- `research/SESSION_LOG.md` — chronological session log.
-- `watchlist/README.md` — projects worth rechecking later.
-- `reports/RESEARCH_TEMPLATE.md` — copy-ready research result format.
+- `programs/PROGRAM_TEMPLATE.md` — optional human-readable dossier for one program.
+- `programs/README.md` — explains when a dossier is worth creating.
+- `research/candidates/` — temporary candidate identity research.
+- `research/daily/` — optional discovery-session notes.
+- `research/SESSION_LOG.md` — chronological research-session log.
+- `watchlist/README.md` — programs to recheck later.
 - `scripts/normalize_url.py` — canonicalization / fingerprint helpers.
-- `scripts/check_duplicate.py` — deterministic duplicate check.
-- `scripts/add_program.py` — safely add a new registry entry after duplicate checks.
-- `scripts/validate_registry.py` — registry integrity and collision checker.
+- `scripts/check_duplicate.py` — deterministic program duplicate check.
+- `scripts/add_program.py` — add a genuinely new program.
+- `scripts/validate_registry.py` — registry integrity and identity-collision checker.
 - `tests/test_registry_tools.py` — standard-library tests for identity logic.
+
+## Canonical storage model
+
+`registry/programs.jsonl` is the source of truth. One line equals one program identity.
+
+You do **not** need a Markdown file for every registry record. Create `programs/<slug>/PROGRAM.md` only when a program needs richer human notes, complex terms, or a longer history than is convenient inside JSONL.
+
+Do not create files for individual vulnerability findings or submissions in this repository.
 
 ## Identity model
 
 A candidate can have several fingerprints:
 
-- normalized program URL;
-- canonical domain;
+- normalized official program URL;
+- canonical project domain;
 - GitHub organization/repository;
 - security-contact domain;
 - exact alias / normalized project name.
 
-Strong identifiers (for example the same GitHub repository or canonical domain) can prove an existing identity. Name similarity alone must **not** automatically suppress a candidate; it should produce a possible-duplicate warning that needs identity resolution.
+Strong identifiers can establish that a program is already known. Name similarity alone must not automatically suppress a candidate; it produces `POSSIBLE_DUPLICATE` until identity is resolved.
 
-## Research result classes
+Shared platforms such as GitHub or third-party bounty platforms are not treated as project domains. Exact hosted URLs and repository identities are matched separately.
 
-Use exactly these high-level outcomes:
+## Program discovery outcomes
 
-- `NEW` — no known identity match exists.
-- `UPDATED` — identity is already known, but a material change is verified.
-- `KNOWN_NO_CHANGE` — known program with no material change.
-- `POSSIBLE_DUPLICATE` — weak identity evidence only; investigate before adding.
-- `REJECTED` — researched but excluded by policy. Keep it in the registry so it is not rediscovered.
+- `NEW` — no known program identity match exists.
+- `UPDATED` — a known program has a verified material change.
+- `KNOWN_NO_CHANGE` — already known and materially unchanged.
+- `POSSIBLE_DUPLICATE` — weak identity match requiring resolution.
+- `REJECTED` — researched but excluded by policy; keep it recorded to prevent rediscovery.
+
+A material update may include a change to program status, scope, reward, payout, KYC/eligibility, submission channel, program terms, or independently actionable campaign.
 
 ## Quick start
 
-Validate the empty / current registry:
+Validate the registry:
 
 ```bash
 python3 scripts/validate_registry.py
@@ -96,26 +120,26 @@ Run tests:
 python3 -m unittest discover -s tests -v
 ```
 
-## Recommended research workflow
+## Research workflow
 
 1. Read `AGENTS.md`, `research-policy.yml`, and `registry/programs.jsonl`.
-2. Run a registry validation.
+2. Validate the registry.
 3. Search for candidate programs.
-4. Before deep research, run `scripts/check_duplicate.py`.
-5. Resolve any possible duplicate using official domains, GitHub ownership, documentation, and security contacts.
-6. For a known identity, compare current facts with its registry/dossier and report only material changes.
-7. For a genuinely new identity, add it with `scripts/add_program.py`.
-8. Record rejected or low-value candidates too; otherwise they will be rediscovered later.
-9. Update the session log and any watchlist recheck date.
+4. Run `scripts/check_duplicate.py` before deep research.
+5. Resolve possible duplicates using official project identity.
+6. If known, determine whether program-level terms changed materially.
+7. If genuinely new, add it to the registry.
+8. Record useful negative research too, so it is not rediscovered later.
+9. Update `last_verified`, status, sources, or `recheck_after` when appropriate.
 
 ## Safety and evidence
 
-This is a research-management template, not authorization to test live systems. Discovery and verification should stay passive unless a program explicitly authorizes active testing.
+This is a passive program-research workspace, not authorization to test live systems.
 
-Prefer primary sources: official security pages, official documentation, official GitHub repositories, official program terms, and official announcements. Record access / verification dates and do not present an inferred publication date as verified.
+Prefer primary sources: official security pages, project documentation, official GitHub repositories, official program terms, and official announcements. Distinguish source publication date from local `first_seen` and `last_verified` dates.
 
-## Data format choice
+## Data format
 
-`registry/programs.jsonl` uses JSON Lines so one program is one independent JSON object per line. It is easy for agents and scripts to append, diff, validate, and process without loading a custom database.
+`registry/programs.jsonl` uses JSON Lines so each program is an independent JSON object that is easy to append, diff, validate, and process.
 
-Do not hand-edit IDs after they are assigned. IDs are permanent and never reused.
+Program IDs are permanent. Never renumber or reuse them.
