@@ -22,6 +22,11 @@ class NormalizeTests(unittest.TestCase):
     def test_name(self):
         self.assertEqual(normalize_name("Example Protocol (Labs)"), "exampleprotocollabs")
 
+    def test_shared_host_is_not_project_domain(self):
+        fp = fingerprints(name="Project A", urls=["https://github.com/project-a/core/security"])
+        self.assertNotIn("github.com", fp["domains"])
+        self.assertIn("https://github.com/project-a/core/security", fp["urls"])
+
 
 class DuplicateTests(unittest.TestCase):
     def setUp(self):
@@ -44,6 +49,17 @@ class DuplicateTests(unittest.TestCase):
     def test_unrelated_is_new(self):
         candidate = fingerprints(name="Other Chain", urls=["https://other.example/security"])
         self.assertEqual(check_candidate(self.rows, candidate)["outcome"], "NEW")
+
+    def test_unrelated_github_security_pages_do_not_collide_by_host(self):
+        known = [{
+            "id": "BP-0002", "name": "Project A", "organization": "Project A", "aliases": [],
+            "program_urls": ["https://github.com/project-a/core/security"], "domains": [],
+            "github": ["project-a/core"], "security_contacts": [], "scope": ["protocol"],
+            "status": "watching", "first_seen": "2026-09-26", "last_verified": "2026-09-26",
+            "recheck_after": None, "sources": [], "notes": "",
+        }]
+        candidate = fingerprints(name="Project B", urls=["https://github.com/project-b/core/security"], github=["project-b/core"])
+        self.assertEqual(check_candidate(known, candidate)["outcome"], "NEW")
 
 
 if __name__ == "__main__":
