@@ -17,6 +17,19 @@ COMMON_MULTI_PART_SUFFIXES = {
     "co.jp", "ne.jp", "or.jp", "com.br", "com.sg", "com.hk",
 }
 
+# Shared publishing / disclosure / bounty platforms are not project identity.
+# Their exact URLs can still be strong fingerprints, and GitHub repo identity is
+# handled independently by `normalize_github`.
+SHARED_ROOT_DOMAINS = {
+    "github.com", "gitlab.com", "bitbucket.org",
+    "google.com", "forms.gle", "notion.site", "notion.so",
+    "medium.com", "mirror.xyz",
+    "x.com", "twitter.com", "discord.com", "discord.gg", "t.me",
+    "immunefi.com", "cantina.xyz", "sherlock.xyz", "code4rena.com",
+    "codehawks.com", "bugcrowd.com", "hackerone.com", "hackenproof.com",
+    "hats.finance",
+}
+
 
 def normalize_name(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", (value or "").lower())
@@ -108,6 +121,13 @@ def normalize_github(value: str) -> str:
     return f"{owner}/{repo}"
 
 
+def _identity_root(value: str) -> str:
+    root = registrable_domain(value)
+    if not root or root in SHARED_ROOT_DOMAINS:
+        return ""
+    return root
+
+
 def fingerprints(*, name: str = "", aliases: list[str] | None = None, urls: list[str] | None = None,
                  domains: list[str] | None = None, github: list[str] | None = None,
                  contacts: list[str] | None = None) -> dict[str, set[str]]:
@@ -117,8 +137,8 @@ def fingerprints(*, name: str = "", aliases: list[str] | None = None, urls: list
     github = github or []
     contacts = contacts or []
     norm_urls = {normalize_url(v) for v in urls if normalize_url(v)}
-    roots = {registrable_domain(v) for v in urls if registrable_domain(v)}
-    roots |= {registrable_domain(v) for v in domains if registrable_domain(v)}
+    roots = {_identity_root(v) for v in urls if _identity_root(v)}
+    roots |= {_identity_root(v) for v in domains if _identity_root(v)}
     contact_domains = {security_contact_domain(v) for v in contacts if security_contact_domain(v)}
     gh = {normalize_github(v) for v in github if normalize_github(v)}
     names = {normalize_name(v) for v in [name, *aliases] if normalize_name(v)}
